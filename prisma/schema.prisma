@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AUTHOR
+  ADMIN
+}
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+enum TicketCategory {
+  ROYALTY_PAYMENTS
+  ISBN_METADATA
+  PRINTING_QUALITY
+  DISTRIBUTION_AVAILABILITY
+  BOOK_STATUS_PRODUCTION
+  GENERAL_INQUIRY
+}
+enum Priority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String
+  role Role
+  author Author?
+  assignedTickets Ticket[] @relation("Assignee")
+  messages TicketMessage[] @relation("Sender")
+  notes InternalNote[] @relation("NoteAuthor")
+  createdAt DateTime @default(now())
+}
+model Author {
+  id String @id
+  userId String @unique
+  name String
+  phone String
+  city String
+  joinedDate DateTime
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  books Book[]
+  tickets Ticket[]
+}
+model Book {
+  id String @id
+  authorId String
+  title String
+  genre String
+  isbn String
+  publicationDate DateTime?
+  status String
+  mrp Int?
+  totalCopiesSold Int @default(0)
+  totalRoyaltyEarned Int @default(0)
+  royaltyPaid Int @default(0)
+  royaltyPending Int @default(0)
+  lastRoyaltyPayoutDate DateTime?
+  authorRoyaltyPerCopy Int?
+  printPartner String?
+  availableOn Json
+  author Author @relation(fields:[authorId],references:[id],onDelete:Cascade)
+  tickets Ticket[]
+}
+model Ticket {
+  id String @id @default(cuid())
+  authorId String
+  bookId String?
+  subject String
+  description String
+  status TicketStatus @default(OPEN)
+  category TicketCategory @default(GENERAL_INQUIRY)
+  priority Priority @default(MEDIUM)
+  aiCategory TicketCategory?
+  aiPriority Priority?
+  classificationReason String?
+  assignedToId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author Author @relation(fields:[authorId],references:[id],onDelete:Cascade)
+  book Book? @relation(fields:[bookId],references:[id])
+  assignedTo User? @relation("Assignee",fields:[assignedToId],references:[id])
+  messages TicketMessage[]
+  notes InternalNote[]
+}
+model TicketMessage {
+  id String @id @default(cuid())
+  ticketId String
+  senderId String?
+  body String
+  isAiDraft Boolean @default(false)
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields:[ticketId],references:[id],onDelete:Cascade)
+  sender User? @relation("Sender",fields:[senderId],references:[id])
+}
+model InternalNote {
+  id String @id @default(cuid())
+  ticketId String
+  authorId String
+  body String
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields:[ticketId],references:[id],onDelete:Cascade)
+  author User @relation("NoteAuthor",fields:[authorId],references:[id])
+}
