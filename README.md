@@ -1,6 +1,6 @@
 # BookLeaf Author Support & Communication Portal
 
-Next.js 15 (App Router) + Prisma/SQLite portal for authors to raise support tickets and admins to manage them, with AI-assisted triage and reply drafting.
+Next.js 15 (App Router) + Prisma/PostgreSQL portal for authors to raise support tickets and admins to manage them, with AI-assisted triage and reply drafting.
 
 ## Prerequisites
 - Node.js 18+ and npm
@@ -51,13 +51,13 @@ Next.js 15 (App Router) + Prisma/SQLite portal for authors to raise support tick
 
 ## Architecture
 - Next.js provides React pages and REST endpoints
-- Prisma/SQLite is the development database (use PostgreSQL in production)
+- Prisma/PostgreSQL is the database
 - JWTs stored in HTTP-only cookies
 - AI classification/drafting uses Groq (`openai/gpt-oss-20b`); falls back to deterministic KB-grounded logic
 
 ## Architecture decisions
 - Next.js App Router for unified frontend + REST backend in one deployable.
-- Prisma + SQLite for local dev; schema portable to PostgreSQL for production.
+- Prisma + PostgreSQL; local dev can use a local Postgres or Prisma Postgres.
 - JWT in HTTP-only cookie for simple, stateless auth; role stored in token.
 - Server-side enforcement of roles/ownership; client only for rendering.
 - AI calls server-only with 8s timeout + 1 retry; compact book + KB context only.
@@ -75,7 +75,7 @@ See `docs/API.md` for full endpoint reference.
 ## Known limitations / improvements
 - Attachment upload is UI-only (no storage).
 - Near-real-time via 10s polling (SSE/WebSockets would be better).
-- No rate limiting/CSRF; SQLite not for production.
+- No rate limiting/CSRF; review before production.
 - No audit log; LLM calls lack a real queue/retry.
 - Add PostgreSQL, object storage + malware scanning, and rate limiting for production.
 
