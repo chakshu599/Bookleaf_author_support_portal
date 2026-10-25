@@ -1,30 +1,36 @@
-# Brief Write-Up
+# Brief Write-Up 
 
-## Stack
-- Frontend: React (Next.js App Router)
-- Backend: Next.js route handlers (Node.js/TypeScript)
-- Database: PostgreSQL via Prisma ORM
-- Auth: JWT in HTTP-only cookies (jose + bcryptjs)
-- AI/LLM: Groq API (OpenAI-compatible) with model `openai/gpt-oss-20b`, deterministic fallback
-- Real-time: 10-second polling
+## Technology Stack
+- **Frontend:** React with Next.js App Router
+- **Backend:** Next.js route handlers (Node.js/TypeScript)
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:** JWT stored in HTTP-only cookies, using `jose` and `bcryptjs`
+- **AI Integration:** Groq API with the OpenAI-compatible `openai/gpt-oss-20b` model and a deterministic fallback
+- **Ticket Updates:** 10-second polling
 
 ## Approach
-I prioritized a working end-to-end ticket lifecycle over breadth: authors can view books/royalties, submit tickets, and see replies; admins can triage, reply, assign, and add internal notes. The stack is Next.js (frontend + REST backend), Prisma/PostgreSQL, and JWT cookie auth, keeping deployment simple while leaving a clear path to production.
+I prioritized delivering a functional end-to-end ticket lifecycle. Authors can view their books and royalty information, submit support tickets, and track responses. Administrators can review and triage tickets, assign them, respond to authors, and add internal notes.
 
-## Priorities
-1. Correctness and security: server-side role/ownership enforcement, Zod validation, structured errors.
-2. AI quality with graceful degradation: Groq classification + drafting with deterministic KB-grounded fallback so the portal works without an API key.
-3. Real-time-ish UX: 10-second polling for both portals.
-4. Completeness: empty states, production books, zero-royalty handling.
+Next.js, Prisma, and PostgreSQL provide a unified application architecture that simplifies development and deployment while maintaining a clear path for future scaling.
+
+## Key Priorities
+1. **Correctness and security:** Enforced role-based access and resource ownership on the server, with Zod validation and structured error handling.
+2. **Reliable AI integration:** Used Groq for ticket classification, priority assignment, and reply drafting, with a deterministic, knowledge-base-grounded fallback when AI is unavailable.
+3. **Responsive user experience:** Implemented 10-second polling to refresh ticket updates in both author and admin portals.
+4. **Functional completeness:** Addressed empty states, book information, and zero-royalty scenarios.
 
 ## Trade-offs
-- PostgreSQL via Prisma Postgres integration for deployment; local setup requires a Postgres instance.
-- Polling instead of WebSockets/SSE to reduce complexity.
-- Attachment upload is UI-only; no object storage.
-- AI calls are inline (not queued) with 8s timeout + 1 retry.
-- Compact KB context only, sacrificing richer policy grounding for cost control.
+- **Database:** Used PostgreSQL with Prisma for deployment compatibility; local development requires a PostgreSQL instance.
+- **Updates:** Chose polling over WebSockets or Server-Sent Events to reduce implementation complexity.
+- **Attachments:** Implemented the attachment interface without a complete file-storage and upload pipeline.
+- **AI execution:** Kept AI calls inline with an 8-second timeout and one retry rather than introducing a background queue.
+- **Context and cost:** Used compact knowledge-base context to control token usage, accepting less extensive policy grounding.
 
-## Evolving to production
-- Move to PostgreSQL, add rate limiting/CSRF, secure object storage + malware scanning, audit log.
-- Replace polling with SSE/WebSockets; use a queue (e.g., BullMQ) for LLM calls with retries.
-- Add monitoring, tests for API routes, and CI/CD; split services if scale demands.
+## Future Production Improvements
+- Strengthen API protection with rate limiting, CSRF protections where applicable, and comprehensive authorization tests.
+- Implement secure object storage, file validation, and malware scanning for attachments.
+- Add audit logging and centralized monitoring.
+- Replace polling with SSE or WebSockets if update frequency and scale justify it.
+- Introduce a background job queue for AI calls, with controlled retries and failure handling.
+- Expand automated API and integration tests and add CI/CD checks.
+- Consider separating services if future traffic and operational needs require it.
