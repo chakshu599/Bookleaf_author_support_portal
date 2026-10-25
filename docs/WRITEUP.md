@@ -3,13 +3,13 @@
 ## Stack
 - Frontend: React (Next.js App Router)
 - Backend: Next.js route handlers (Node.js/TypeScript)
-- Database: SQLite via Prisma ORM
+- Database: PostgreSQL via Prisma ORM
 - Auth: JWT in HTTP-only cookies (jose + bcryptjs)
 - AI/LLM: Groq API (OpenAI-compatible) with model `openai/gpt-oss-20b`, deterministic fallback
 - Real-time: 10-second polling
 
 ## Approach
-I prioritized a working end-to-end ticket lifecycle over breadth: authors can view books/royalties, submit tickets, and see replies; admins can triage, reply, assign, and add internal notes. The stack is Next.js (frontend + REST backend), Prisma/SQLite, and JWT cookie auth, keeping deployment simple while leaving a clear path to production.
+I prioritized a working end-to-end ticket lifecycle over breadth: authors can view books/royalties, submit tickets, and see replies; admins can triage, reply, assign, and add internal notes. The stack is Next.js (frontend + REST backend), Prisma/PostgreSQL, and JWT cookie auth, keeping deployment simple while leaving a clear path to production.
 
 ## Priorities
 1. Correctness and security: server-side role/ownership enforcement, Zod validation, structured errors.
@@ -18,7 +18,7 @@ I prioritized a working end-to-end ticket lifecycle over breadth: authors can vi
 4. Completeness: empty states, production books, zero-royalty handling.
 
 ## Trade-offs
-- SQLite instead of PostgreSQL for fast local setup; schema is portable.
+- PostgreSQL via Prisma Postgres integration for deployment; local setup requires a Postgres instance.
 - Polling instead of WebSockets/SSE to reduce complexity.
 - Attachment upload is UI-only; no object storage.
 - AI calls are inline (not queued) with 8s timeout + 1 retry.

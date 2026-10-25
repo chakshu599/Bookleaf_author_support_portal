@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('priya.sharma@email.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
@@ -34,6 +34,5 @@ export function LoginForm() {
       {error && <p role="alert" className="error">{error}</p>}
       <button className="primary" type="submit">Sign in</button>
     </form>
-    <p className="muted"><b>Demo author:</b> priya.sharma@email.com<br /><b>Demo admin:</b> admin@bookleaf.demo<br />Password: Bookleaf@123</p>
   </section>;
 }
